@@ -26,6 +26,7 @@ jobs:
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           # Menjalankan script
+          cd MLProject
           python modelling.py
 
       - name: Save Artifacts to GitHub
