@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
 
-dagshub.init(repo_owner='zalfahascaryo-ai', repo_name='Eksperimen_SML_Annisa-Zalfa', lw=True)
+dagshub.init(repo_owner='zalfahascaryo-ai', repo_name='Eksperimen_SML_Annisa-Zalfa')
 
 mlflow.set_tracking_uri("https://dagshub.com/zalfahascaryo-ai/Eksperimen_SML_Annisa-Zalfa.mlflow")
 
@@ -74,5 +74,6 @@ def train_advanced():
 
 if __name__ == "__main__":
     train_advanced()
+
 
 
