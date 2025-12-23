@@ -21,7 +21,10 @@ def train_advanced():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     # --- START MLFLOW RUN ---
-    with mlflow.start_run(run_name="Classifier_Manual_Logging"):
+    with mlflow.start_run(run_name="Classifier_Manual_Logging") as run:
+        with open ("run_id.txt", "w") as f:
+            f.write(run.info.run_id)
+            
         model = RandomForestClassifier(n_estimators=100, max_depth=10, min_samples_split=2, random_state=42)
         model.fit(X_train, y_train)
         y_pred = model.predict(X_test)
@@ -64,6 +67,7 @@ def train_advanced():
 
 if __name__ == "__main__":
     train_advanced()
+
 
 
 
