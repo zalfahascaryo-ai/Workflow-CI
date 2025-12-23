@@ -50,16 +50,16 @@ jobs:
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
           mlflow models build-docker \
-            -m "runs:/$NEW_RUN_ID/" \
+            -m "runs:/$NEW_RUN_ID/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/model:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest
 
       - name: Save Artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: model-results
           path: |
-            model_classifier_advanced/*.png
-            model_classifier_advanced/*.csv
+            /*.png
+            /*.csv
