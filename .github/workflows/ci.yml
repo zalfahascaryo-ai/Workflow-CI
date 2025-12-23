@@ -52,7 +52,7 @@ jobs:
 
           # 3. Build Docker Image (Path model diarahkan ke folder model_classifier_advanced)
           mlflow models build-docker \
-            -m "model_classifier_advanced" \
+            -m "runs:/bd35f4c6013245039a283de5cf4f00be/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
