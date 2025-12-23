@@ -42,27 +42,24 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          # 1. Ambil Run ID terbaru
-          NEW_RUN_ID=$(cat MLProject/run_id.txt)
-          echo "Building Docker for Run ID: $NEW_RUN_ID"
 
-          # 2. Jeda waktu 30-45 detik agar DagsHub selesai memproses upload artefak
+          # 1. Jeda waktu 30-45 detik agar DagsHub selesai memproses upload artefak
           echo "Waiting for DagsHub artifact synchronization..."
           sleep 45
 
-          # 3. Build Docker Image (Path model diarahkan ke folder model_classifier_advanced)
+          # 2. Build Docker Image (Path model diarahkan ke folder model_classifier_advanced)
           mlflow models build-docker \
             -m "runs:/bd35f4c6013245039a283de5cf4f00be/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
-          # 4. Push ke Docker Hub
+          # 3. Push ke Docker Hub
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest
 
       - name: Save Artifacts to GitHub
         uses: actions/upload-artifact@v4
         with:
           name: model-results
-          path: model_result
+          path: |
             MLProject/*.png
             MLProject/*.csv
