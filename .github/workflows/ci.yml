@@ -34,6 +34,7 @@ jobs:
         with:
           name: model-results
           path: |
+            cd MLProject
             confusion_matrix.png
             feature_importance.png
             test_predictions.csv
