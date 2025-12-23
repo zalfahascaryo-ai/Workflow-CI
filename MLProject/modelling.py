@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_sc
 
 def train_advanced():
     # Load dataset
-    df = pd.read_csv(r'D:\DICODING\MSML\Membangun_model\HealthRisk_preprocessing.csv')
+    df = pd.read_csv('HealthRisk_preprocessing.csv')
     
     # Pastikan health_risk bertipe integer/kategori agar bisa diklasifikasi
     X = df.drop('health_risk', axis=1)
@@ -64,6 +64,7 @@ def train_advanced():
 
 if __name__ == "__main__":
     train_advanced()
+
 
 
 
