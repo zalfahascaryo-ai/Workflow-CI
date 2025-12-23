@@ -40,7 +40,7 @@ jobs:
 
       - name: Build and Push Docker Image
         env:
-          # Pastikan variabel ini ada di sini agar dikenali oleh MLflow CLI
+          # Pastikan URL Repo benar sesuai screenshot cb010a
           MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Eksperimen_SML_Annisa-Zalfa.mlflow
           MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
@@ -49,6 +49,7 @@ jobs:
           NEW_RUN_ID=$(cat MLProject/run_id.txt)
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
+          # Kita arahkan ke folder 'model_classifier_advanced' karena di sanalah MLmodel berada
           mlflow models build-docker \
             -m "runs:/$NEW_RUN_ID/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
@@ -61,6 +62,6 @@ jobs:
         with:
           name: model-results
           path: |
-            cd Eksperimen_SML_Annisa-Zalfa
             *.png
             *.csv
+            # Kita cari di root (karena tidak di dalam MLProject)
