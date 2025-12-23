@@ -10,16 +10,7 @@ from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, ConfusionMatrixDisplay
 
-# Menggunakan environment variables yang dikirim dari GitHub Actions
-token = os.getenv("DAGSHUB_USER_TOKEN")
-
-if token:
-    # Jika berjalan di GitHub Actions (ada token)
-    dagshub.init(repo_owner='zalfahascaryo-ai', repo_name='Eksperimen_SML_Annisa-Zalfa', lw=True)
-else:
-    # Jika berjalan di laptop lokal (login manual)
-    dagshub.login()
-    dagshub.init(repo_owner='zalfahascaryo-ai', repo_name='Eksperimen_SML_Annisa-Zalfa', lw=True)
+dagshub.init(repo_owner='zalfahascaryo-ai', repo_name='Eksperimen_SML_Annisa-Zalfa', lw=True)
 
 mlflow.set_tracking_uri("https://dagshub.com/zalfahascaryo-ai/Eksperimen_SML_Annisa-Zalfa.mlflow")
 
@@ -83,4 +74,5 @@ def train_advanced():
 
 if __name__ == "__main__":
     train_advanced()
+
 
