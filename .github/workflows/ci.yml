@@ -1,23 +1,62 @@
-- name: Build and Push Docker Image
-        env:
-          MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Eksperimen_SML_Annisa-Zalfa.mlflow
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+name: Machine Learning CI & Docker Build
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  ml_workflow:
+    runs-on: ubuntu-latest
+    
+    env:
+      # PENTING: Gunakan nama repo DagsHub yang sesuai dengan URL browser Anda
+      MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Eksperimen_SML_Annisa-Zalfa.mlflow
+      MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+      MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
         run: |
-          # 1. Ambil Run ID
+          pip install mlflow dagshub pandas scikit-learn matplotlib seaborn docker
+
+      - name: Run Training
+        run: |
+          # Jalankan script di folder project
+          cd MLProject
+          python modelling.py
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        run: |
+          # 1. Ambil Run ID terbaru
           NEW_RUN_ID=$(cat MLProject/run_id.txt)
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
-          # 2. WAJIB: Berikan jeda 30 detik agar DagsHub selesai sinkronisasi artefak
-          echo "Waiting for DagsHub to sync artifacts..."
-          sleep 30
+          # 2. Jeda waktu 30-45 detik agar DagsHub selesai memproses upload artefak
+          echo "Waiting for DagsHub artifact synchronization..."
+          sleep 45
 
-          # 3. Jalankan build dengan path yang sudah kita lihat di screenshot
+          # 3. Build Docker Image (Path model diarahkan ke folder model_classifier_advanced)
           mlflow models build-docker \
             -m "runs:/$NEW_RUN_ID/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
+          # 4. Push ke Docker Hub
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest
 
       - name: Save Artifacts to GitHub
