@@ -50,7 +50,7 @@ jobs:
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
           mlflow models build-docker \
-            -m "runs:/$NEW_RUN_ID" \
+            -m "runs:/$NEW_RUN_ID"/ \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/model:latest" \
             --enable-mlserver
           
