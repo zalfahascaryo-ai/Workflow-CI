@@ -2,11 +2,18 @@ name: Machine Learning CI & Docker Build
 
 on:
   push:
-    branches: [ main ] # Berjalan otomatis saat melakukan push ke main
+    branches: [ main ]
 
 jobs:
   train-and-save:
     runs-on: ubuntu-latest
+    # Pindahkan env ke sini agar berlaku untuk SEMUA steps
+    env:
+      MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Eksperimen_SML_Annisa-Zalfa.mlflow
+      MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+      MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+      DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -21,12 +28,7 @@ jobs:
           pip install mlflow dagshub pandas scikit-learn matplotlib seaborn docker
 
       - name: Run Training
-        env:
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          # Menjalankan script
           cd MLProject
           python modelling.py
 
@@ -37,22 +39,18 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
-        env:
-          MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Eksperimen_SML_Annisa-Zalfa.mlflow
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          # Ambil Run ID dari file yang dibuat di step Run Training
+          # Ambil Run ID
           NEW_RUN_ID=$(cat MLProject/run_id.txt)
-          
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
+          # Tambahkan flag --tracking-uri agar build-docker tahu harus mencari ke DagsHub
           mlflow models build-docker \
             -m "runs:/$NEW_RUN_ID/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
+            --tracking-uri $MLFLOW_TRACKING_URI \
             --enable-mlserver
           
-          # Gunakan nama yang sama dengan flag -n di atas
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest
 
       - name: Save Artifacts to GitHub
