@@ -61,5 +61,6 @@ jobs:
         with:
           name: model-results
           path: |
-            /*.png
-            /*.csv
+            cd Eksperimen_SML_Annisa-Zalfa
+            *.png
+            *.csv
