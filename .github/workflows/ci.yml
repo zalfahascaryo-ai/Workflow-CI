@@ -39,16 +39,19 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push Docker Image
+        env:
+          # Pastikan variabel ini ada di sini agar dikenali oleh MLflow CLI
+          MLFLOW_TRACKING_URI: https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/Eksperimen_SML_Annisa-Zalfa.mlflow
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           # Ambil Run ID
           NEW_RUN_ID=$(cat MLProject/run_id.txt)
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
-          # Tambahkan flag --tracking-uri agar build-docker tahu harus mencari ke DagsHub
           mlflow models build-docker \
             -m "runs:/$NEW_RUN_ID/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
-            --tracking-uri $MLFLOW_TRACKING_URI \
             --enable-mlserver
           
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest
