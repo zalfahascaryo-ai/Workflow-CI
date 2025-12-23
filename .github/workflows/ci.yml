@@ -50,7 +50,7 @@ jobs:
           echo "Building Docker for Run ID: $NEW_RUN_ID"
 
           mlflow models build-docker \
-            -m "runs:/$NEW_RUN_ID/model_classifier_advanced" \
+            -m "runs:/$NEW_RUN_ID/" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
@@ -61,5 +61,5 @@ jobs:
         with:
           name: model-results
           path: |
-            MLProject/*.png
-            MLProject/*.csv
+            model_classifier_advanced/*.png
+            model_classifier_advanced/*.csv
