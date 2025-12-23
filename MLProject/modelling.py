@@ -10,7 +10,7 @@ mlflow.autolog()
 
 def train_model():
     # 2. Load dataset hasil preprocessing (sesuaikan nama filenya)
-    df = pd.read_csv(r'D:\DICODING\MSML\Membangun_model\HealthRisk_preprocessing.csv')
+    df = pd.read_csv('HealthRisk_preprocessing.csv')
     
     # Pisahkan Fitur dan Target (Contoh: target kolom 'health_risk')
     X = df.drop('health_risk', axis=1)
@@ -29,3 +29,4 @@ def train_model():
 
 if __name__ == "__main__":
     train_model()
+
