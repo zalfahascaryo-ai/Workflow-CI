@@ -33,17 +33,6 @@ jobs:
         run: |
           # Jalankan training dan simpan output ke file log
           mlflow run MLProject --env-manager local --run-name "CI_Workflow_Run" | tee run_output.txt
-          
-          # Ambil Run ID dari log (mencari baris yang mengandung 'succeeded' atau 'ID')
-          RUN_ID=$(grep -oP "Run \(ID '\K[^']+" run_output.txt | head -1)
-          
-          if [ -z "$RUN_ID" ]; then
-            echo "Error: Run ID tidak ditemukan dalam log!"
-            exit 1
-          fi
-          
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Berhasil mendapatkan Run ID: $RUN_ID"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -60,7 +49,7 @@ jobs:
 
           # Pastikan path model 'model_classifier_advanced' sesuai dengan yang ada di modelling.py
           mlflow models build-docker \
-            -m "runs:/${{ env.RUN_ID }}/model_classifier_advanced" \
+            -m "runs:/de966dddb6e341e999034c6ba8f49fe0/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
