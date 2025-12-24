@@ -28,10 +28,17 @@ jobs:
         run: |
           pip install mlflow dagshub pandas scikit-learn matplotlib seaborn docker
 
-      - name: Run MLflow Project
+      - name: Run MLflow Project (Training)
         id: train_step
         run: |
-          mlflow run MLProject --env-manager local --run-name "CI_Workflow_Run"
+          # Jalankan mlflow run dan simpan output ke file log
+          mlflow run MLProject --env-manager local --run-name "CI_Workflow_Run" > run_info.txt
+          cat run_info.txt
+          
+          # Ekstrak Run ID dari log menggunakan grep dan cut
+          RUN_ID=$(grep "Running command" run_info.txt | sed -n 's/.*ID '\''\([^'\'']*\)'\''.*/\1/p')
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Berhasil mendapatkan Run ID: $RUN_ID"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -41,18 +48,14 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-
-          # 1. Jeda waktu 30-45 detik agar DagsHub selesai memproses upload artefak
           echo "Waiting for DagsHub artifact synchronization..."
           sleep 45
 
-          # Mengambil Run ID terbaru secara dinamis agar tidak hardcoded
-          LATEST_RUN_ID=$(mlflow runs list --experiment-id 0 --max-results 1 --order-by "start_time DESC" | awk 'NR==3 {print $1}')
-          
-          echo "Building image for Run ID: $LATEST_RUN_ID"
+          # Gunakan RUN_ID yang disimpan di env tadi
+          echo "Building image for Run ID: ${{ env.RUN_ID }}"
 
           mlflow models build-docker \
-            -m "runs:/$LATEST_RUN_ID/model_classifier_advanced" \
+            -m "runs:/${{ env.RUN_ID }}/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
