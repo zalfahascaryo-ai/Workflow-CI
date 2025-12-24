@@ -49,7 +49,7 @@ jobs:
 
           # Pastikan path model 'model_classifier_advanced' sesuai dengan yang ada di modelling.py
           mlflow models build-docker \
-            -m "runs:/de966dddb6e341e999034c6ba8f49fe0/model_classifier_advanced" \
+            -m "runs:/de966dddb6e341e999034c6ba8f49fe0/" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
             --enable-mlserver
           
