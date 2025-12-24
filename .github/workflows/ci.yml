@@ -31,20 +31,19 @@ jobs:
       - name: Run MLflow Project (Training)
         id: train_step
         run: |
-          # Jalankan training
-          mlflow run MLProject --env-manager local --run-name "CI_Workflow_Run"
+          # Jalankan training dan simpan output ke file log
+          mlflow run MLProject --env-manager local --run-name "CI_Workflow_Run" | tee run_output.txt
           
-          # Ambil Run ID terbaru menggunakan perintah formal mlflow
-          # Ini mencari run terakhir yang sukses di experiment 0
-          LATEST_RUN_ID=$(mlflow runs list --experiment-id 0 --max-results 1 | awk 'NR==3 {print $1}')
+          # Ambil Run ID dari log (mencari baris yang mengandung 'succeeded' atau 'ID')
+          RUN_ID=$(grep -oP "Run \(ID '\K[^']+" run_output.txt | head -1)
           
-          if [ -z "$LATEST_RUN_ID" ]; then
-            echo "Error: Run ID tidak ditemukan!"
+          if [ -z "$RUN_ID" ]; then
+            echo "Error: Run ID tidak ditemukan dalam log!"
             exit 1
           fi
           
-          echo "RUN_ID=$LATEST_RUN_ID" >> $GITHUB_ENV
-          echo "Berhasil mendapatkan Run ID: $LATEST_RUN_ID"
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Berhasil mendapatkan Run ID: $RUN_ID"
 
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -57,9 +56,9 @@ jobs:
           echo "Waiting for DagsHub artifact synchronization..."
           sleep 45
 
-          # Sekarang ${{ env.RUN_ID }} sudah pasti terisi
           echo "Building image for Run ID: ${{ env.RUN_ID }}"
 
+          # Pastikan path model 'model_classifier_advanced' sesuai dengan yang ada di modelling.py
           mlflow models build-docker \
             -m "runs:/${{ env.RUN_ID }}/model_classifier_advanced" \
             -n "${{ secrets.DOCKERHUB_USERNAME }}/healthrisk-model:latest" \
